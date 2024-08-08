@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"io"
 
-	internal "github.com/daytonaio/daytona-provider-sample/internal"
-	log_writers "github.com/daytonaio/daytona-provider-sample/internal/log"
-	provider_types "github.com/daytonaio/daytona-provider-sample/pkg/types"
+	internal "github.com/daytonaio/daytona-provider-azure/internal"
+	log_writers "github.com/daytonaio/daytona-provider-azure/internal/log"
+	provider_types "github.com/daytonaio/daytona-provider-azure/pkg/types"
 
 	"github.com/daytonaio/daytona/pkg/logs"
 	"github.com/daytonaio/daytona/pkg/provider"
@@ -15,7 +15,7 @@ import (
 	"github.com/daytonaio/daytona/pkg/workspace/project"
 )
 
-type SampleProvider struct {
+type AzureProvider struct {
 	BasePath           *string
 	DaytonaDownloadUrl *string
 	DaytonaVersion     *string
@@ -28,7 +28,7 @@ type SampleProvider struct {
 	OwnProperty        string
 }
 
-func (p *SampleProvider) Initialize(req provider.InitializeProviderRequest) (*util.Empty, error) {
+func (p *AzureProvider) Initialize(req provider.InitializeProviderRequest) (*util.Empty, error) {
 	p.OwnProperty = "my-own-property"
 
 	p.BasePath = &req.BasePath
@@ -44,18 +44,18 @@ func (p *SampleProvider) Initialize(req provider.InitializeProviderRequest) (*ut
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetInfo() (provider.ProviderInfo, error) {
+func (p AzureProvider) GetInfo() (provider.ProviderInfo, error) {
 	return provider.ProviderInfo{
-		Name:    "provider-sample",
+		Name:    "azure-provider",
 		Version: internal.Version,
 	}, nil
 }
 
-func (p SampleProvider) GetTargetManifest() (*provider.ProviderTargetManifest, error) {
+func (p AzureProvider) GetTargetManifest() (*provider.ProviderTargetManifest, error) {
 	return provider_types.GetTargetManifest(), nil
 }
 
-func (p SampleProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
+func (p AzureProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
 	info, err := p.GetInfo()
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (p SampleProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) 
 	return &defaultTargets, nil
 }
 
-func (p SampleProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AzureProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	logWriter := io.MultiWriter(&log_writers.InfoLogWriter{})
 	if p.LogsDir != nil {
 		loggerFactory := logs.NewLoggerFactory(*p.LogsDir)
@@ -85,19 +85,19 @@ func (p SampleProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest)
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AzureProvider) StartWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StopWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AzureProvider) StopWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
+func (p AzureProvider) DestroyWorkspace(workspaceReq *provider.WorkspaceRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) (*workspace.WorkspaceInfo, error) {
+func (p AzureProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest) (*workspace.WorkspaceInfo, error) {
 	providerMetadata, err := p.getWorkspaceMetadata(workspaceReq)
 	if err != nil {
 		return nil, err
@@ -124,7 +124,7 @@ func (p SampleProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest
 	return workspaceInfo, nil
 }
 
-func (p SampleProvider) CreateProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AzureProvider) CreateProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	logWriter := io.MultiWriter(&log_writers.InfoLogWriter{})
 	if p.LogsDir != nil {
 		loggerFactory := logs.NewLoggerFactory(*p.LogsDir)
@@ -138,19 +138,19 @@ func (p SampleProvider) CreateProject(projectReq *provider.ProjectRequest) (*uti
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StartProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AzureProvider) StartProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) StopProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AzureProvider) StopProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) DestroyProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
+func (p AzureProvider) DestroyProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	return new(util.Empty), nil
 }
 
-func (p SampleProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*project.ProjectInfo, error) {
+func (p AzureProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*project.ProjectInfo, error) {
 	providerMetadata := provider_types.ProjectMetadata{
 		Property: projectReq.Project.Name,
 	}
@@ -170,7 +170,7 @@ func (p SampleProvider) GetProjectInfo(projectReq *provider.ProjectRequest) (*pr
 	return projectInfo, nil
 }
 
-func (p SampleProvider) getWorkspaceMetadata(workspaceReq *provider.WorkspaceRequest) (string, error) {
+func (p AzureProvider) getWorkspaceMetadata(workspaceReq *provider.WorkspaceRequest) (string, error) {
 	metadata := provider_types.WorkspaceMetadata{
 		Property: workspaceReq.Workspace.Id,
 	}

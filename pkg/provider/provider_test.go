@@ -10,11 +10,11 @@ import (
 	"github.com/daytonaio/daytona/pkg/workspace/project"
 	"github.com/daytonaio/daytona/pkg/workspace/project/config"
 
-	"github.com/daytonaio/daytona-provider-sample/pkg/provider"
-	provider_types "github.com/daytonaio/daytona-provider-sample/pkg/types"
+	"github.com/daytonaio/daytona-provider-azure/pkg/provider"
+	provider_types "github.com/daytonaio/daytona-provider-azure/pkg/types"
 )
 
-var sampleProvider = &provider.SampleProvider{}
+var sampleProvider = &provider.AzureProvider{}
 var targetOptions = &provider_types.TargetOptions{
 	RequiredString: "default-required-string",
 }
