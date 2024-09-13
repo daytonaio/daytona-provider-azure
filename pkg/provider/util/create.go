@@ -276,8 +276,9 @@ func GetVirtualMachine(workspace *workspace.Workspace, opts *types.TargetOptions
 		return nil, err
 	}
 
-	resourceGroupName := getResourceName(workspace.Id)
+	resourceGroupName := getResourceGroupName(opts)
 	vmName := getResourceName(workspace.Id)
+
 	resp, err := computeClient.Get(context.Background(), resourceGroupName, vmName, nil)
 	if err != nil {
 		return nil, err
