@@ -28,8 +28,12 @@ This repository is the home of the <a href="https://github.com/daytonaio/daytona
 The Azure Provider allows Daytona to create and manage workspace projects on Amazon virtual machines.
 
 To use the Azure Provider for managing workspace projects, you'll need ensure that the token is associated with a 
-service principal with the `Contributor` role assigned to the relevant Azure subscription. Detailed instructions on 
-generating and configuring the token can be found [here](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-1?tabs=bash)
+service principal with the `Contributor` role assigned to the relevant Azure subscription.
+You can create a service principal with the Contributor role using the following Azure CLI command:
+```shell
+az ad sp create-for-rbac --role Contributor --scopes /subscriptions/<subscription-id>
+```
+Detailed instructions on generating and configuring the token can be found [here](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-1?tabs=bash)
 
 ## Target Options
 

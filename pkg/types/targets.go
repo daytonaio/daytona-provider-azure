@@ -28,6 +28,7 @@ func GetTargetManifest() *provider.ProviderTargetManifest {
 			DefaultValue: "centralus",
 			Description: "The geographic area where Azure resources are hosted. Default is centralus.\n" +
 				"List of available regions can be retrieved using the command:\n\"az account list-locations -o table\"",
+			Suggestions: regions,
 		},
 		"Tenant Id": provider.ProviderTargetProperty{
 			Type:        provider.ProviderTargetPropertyTypeString,
@@ -64,18 +65,23 @@ func GetTargetManifest() *provider.ProviderTargetManifest {
 			DefaultValue: "Canonical:ubuntu-24_04-lts:server:latest",
 			Description: "The identifier of the Azure virtual machine image to launch an instance. Default is Canonical:ubuntu-24_04-lts:server:latest.\n" +
 				"List of available images:\nhttps://learn.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage",
+			Suggestions: imageUrns,
 		},
 		"VM Size": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeString,
 			DefaultValue: "Standard_B2s",
-			Description: "The size of the azure machine. Default is Standard_A2_v2.\n" +
-				"List of available sizes:\nhttps://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview",
+			Description: "The size of the Azure machine. Default is Standard_A2_v2.\n" +
+				"List of available sizes:\nhttps://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview/" +
+				"List of available sizes per location can be retrieved using the command:\naz vm list-sizes --location <your-region> --output table",
+			Suggestions: vmSizes,
 		},
 		"Disk Type": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeString,
 			DefaultValue: "StandardSSD_LRS",
 			Description: "The type of the azure managed disk. Default is StandardSSD_LRS.\n" +
-				"List of available types:\nhttps://docs.microsoft.com/azure/virtual-machines/linux/disks-types",
+				"List of available disk types:\nhttps://docs.microsoft.com/azure/virtual-machines/linux/disks-types" +
+				"List of available disk types per location can be retrieved using the command:\naz vm list-skus --location <your-region> --output table",
+			Suggestions: diskTypes,
 		},
 		"Disk Size": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeInt,
