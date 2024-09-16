@@ -65,7 +65,7 @@ func GetTargetManifest() *provider.ProviderTargetManifest {
 			DefaultValue: "Canonical:ubuntu-24_04-lts:server:latest",
 			Description: "The identifier of the Azure virtual machine image to launch an instance. Default is Canonical:ubuntu-24_04-lts:server:latest.\n" +
 				"List of available images:\nhttps://learn.microsoft.com/en-us/azure/virtual-machines/linux/cli-ps-findimage",
-			Suggestions: imageUrns,
+			Suggestions: imagesUrns,
 		},
 		"VM Size": provider.ProviderTargetProperty{
 			Type:         provider.ProviderTargetPropertyTypeString,
