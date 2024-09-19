@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azcore"
@@ -12,6 +13,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/network/armnetwork"
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
+	logwriters "github.com/daytonaio/daytona-provider-azure/internal/log"
 	"github.com/daytonaio/daytona-provider-azure/pkg/types"
 	"github.com/daytonaio/daytona/pkg/workspace"
 	"github.com/sethvargo/go-password/password"
@@ -61,18 +63,24 @@ func initResourceGroup(opts *types.TargetOptions) (string, error) {
 }
 
 // createVirtualMachine creates a new virtual machine instance in the specified Azure workspace.
-func createVirtualMachine(workspaceId, resourceGroupName, customData string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
+func createVirtualMachine(workspaceId, resourceGroupName, customData string, opts *types.TargetOptions, cred azcore.TokenCredential, logWriter io.Writer) error {
+	spinner := logwriters.ShowSpinner(logWriter, "Creating Azure virtual network", "Azure virtual network created")
 	vNet, err := createVirtualNetwork(workspaceId, resourceGroupName, opts, cred)
+	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create virtual network: %+v", err)
 	}
 
+	spinner = logwriters.ShowSpinner(logWriter, "Creating Azure subnet", "Azure subnet created")
 	subnet, err := createSubnet(workspaceId, resourceGroupName, *vNet.Name, opts, cred)
+	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create subnet: %+v", err)
 	}
 
+	spinner = logwriters.ShowSpinner(logWriter, "Creating Azure network interface", "Azure network interface created")
 	iface, err := createNetworkInterface(workspaceId, resourceGroupName, *subnet.ID, opts, cred)
+	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create network interface:%+v", err)
 	}
@@ -95,6 +103,7 @@ func createVirtualMachine(workspaceId, resourceGroupName, customData string, opt
 		return err
 	}
 
+	spinner = logwriters.ShowSpinner(logWriter, "Creating Azure virtual machine", "Azure virtual machine created")
 	pollerResp, err := computeClient.BeginCreateOrUpdate(
 		context.Background(),
 		resourceGroupName,
@@ -143,10 +152,12 @@ func createVirtualMachine(workspaceId, resourceGroupName, customData string, opt
 			},
 		}, nil)
 	if err != nil {
+		close(spinner)
 		return err
 	}
 
 	_, err = pollerResp.PollUntilDone(context.Background(), nil)
+	close(spinner)
 	return err
 }
 

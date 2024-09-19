@@ -80,11 +80,8 @@ func (a *AzureProvider) CreateWorkspace(workspaceReq *provider.WorkspaceRequest)
 		return nil, err
 	}
 
-	vmSpinner := logwriters.ShowSpinner(logWriter, "Creating Azure virtual machine", "Azure virtual machine created")
 	initScript := fmt.Sprintf(`curl -sfL -H "Authorization: Bearer %s" %s | bash`, workspaceReq.Workspace.ApiKey, *a.DaytonaDownloadUrl)
-
-	err = azureutil.CreateWorkspace(workspaceReq.Workspace, targetOptions, initScript)
-	close(vmSpinner)
+	err = azureutil.CreateWorkspace(workspaceReq.Workspace, targetOptions, initScript, logWriter)
 	if err != nil {
 		logWriter.Write([]byte("Failed to create workspace: " + err.Error() + "\n"))
 		return nil, err

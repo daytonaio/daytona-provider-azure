@@ -4,13 +4,14 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"io"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 	"github.com/daytonaio/daytona-provider-azure/pkg/types"
 	"github.com/daytonaio/daytona/pkg/workspace"
 )
 
-func CreateWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions, initScript string) error {
+func CreateWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions, initScript string, logWriter io.Writer) error {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return err
@@ -88,7 +89,7 @@ systemctl start daytona-agent.service
 `
 
 	customDataEncoded := base64.StdEncoding.EncodeToString([]byte(customData))
-	return createVirtualMachine(workspace.Id, resourceGroupName, customDataEncoded, opts, cred)
+	return createVirtualMachine(workspace.Id, resourceGroupName, customDataEncoded, opts, cred, logWriter)
 }
 
 func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
