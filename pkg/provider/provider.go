@@ -53,7 +53,10 @@ func (a *AzureProvider) Initialize(req provider.InitializeProviderRequest) (*uti
 }
 
 func (a *AzureProvider) GetInfo() (provider.ProviderInfo, error) {
+	label := "Azure"
+
 	return provider.ProviderInfo{
+		Label:   &label,
 		Name:    "azure-provider",
 		Version: internal.Version,
 	}, nil
