@@ -7,7 +7,6 @@
 
 </div>
 
-
 <h1 align="center">Daytona Azure Provider</h1>
 <div align="center">
 This repository is the home of the <a href="https://github.com/daytonaio/daytona">Daytona</a> Azure Provider.
@@ -24,36 +23,36 @@ This repository is the home of the <a href="https://github.com/daytonaio/daytona
   <a href="https://x.com/Daytonaio">X</a>
 </p>
 
-
 The Azure Provider allows Daytona to create and manage workspace projects on Amazon virtual machines.
 
-To use the Azure Provider for managing workspace projects, you'll need ensure that the token is associated with a 
+To use the Azure Provider for managing workspace projects, you'll need ensure that the token is associated with a
 service principal with the `Contributor` role assigned to the relevant Azure subscription.
 You can create a service principal with the Contributor role using the following Azure CLI command:
+
 ```shell
 az ad sp create-for-rbac --role Contributor --scopes /subscriptions/<subscription-id>
 ```
+
 Detailed instructions on generating and configuring the token can be found [here](https://learn.microsoft.com/en-us/cli/azure/azure-cli-sp-tutorial-1?tabs=bash)
 
 ## Target Options
 
-| Property                	 | Type     	 | Optional 	  | DefaultValue                	                       | InputMasked 	   | DisabledPredicate 	 |
-|---------------------------|------------|-------------|-----------------------------------------------------|-----------------|---------------------|
-| Region        	           | String   	 | true    	   | centralus     	                                     | false       	   | 	                   |
-| Image URN                 | String   	 | true     	  | Canonical:ubuntu-24_04-lts:server:latest          	 | false         	 | 	                   |
-| VM Size                   | String   	 | true     	  | Standard_B2s          	                             | false         	 | 	                   |
-| Disk Type                 | String   	 | true     	  | StandardSSD_LRS          	                          | false         	 | 	                   |
-| Disk Size            	    | Int      	 | true     	  | 30           	                                      | false       	   | 	                   |
-| Resource Group            | String   	 | true     	  | 	                                                   | false         	 | 	                   |
-| Tenant Id                 | String   	 | false     	 | 	                                                   | true         	  | 	                   |
-| Client Id                 | String   	 | false     	 | 	                                                   | true         	  | 	                   |
-| Client Secret             | String   	 | false     	 | 	                                                   | true         	  | 	                   |
-| Subscription Id           | String   	 | false     	 | 	                                                   | true         	  | 	                   |
+| Property        | Type   | Optional | DefaultValue                             | InputMasked | DisabledPredicate |
+| --------------- | ------ | -------- | ---------------------------------------- | ----------- | ----------------- |
+| Region          | String | true     | centralus                                | false       |                   |
+| Image URN       | String | true     | Canonical:ubuntu-24_04-lts:server:latest | false       |                   |
+| VM Size         | String | true     | Standard_B2s                             | false       |                   |
+| Disk Type       | String | true     | StandardSSD_LRS                          | false       |                   |
+| Disk Size       | Int    | true     | 30                                       | false       |                   |
+| Resource Group  | String | true     |                                          | false       |                   |
+| Tenant Id       | String | false    |                                          | true        |                   |
+| Client Id       | String | false    |                                          | true        |                   |
+| Client Secret   | String | false    |                                          | true        |                   |
+| Subscription Id | String | false    |                                          | true        |                   |
 
+### Preset Targets
 
-### Default Targets
-
-The Azure Provider has no default targets. Before using the provider you must set the target using the daytona target set command.
+The Azure Provider has no preset targets. Before using the provider you must set the target using the daytona target set command.
 
 ## Code of Conduct
 
@@ -74,4 +73,3 @@ Afterwards, navigate to the [contributing guide](CONTRIBUTING.md) to get started
 
 For more information on how to use and develop Daytona, talk to us on
 [Slack](https://go.daytona.io/slack).
-

@@ -66,7 +66,7 @@ func (a *AzureProvider) GetTargetManifest() (*provider.ProviderTargetManifest, e
 	return types.GetTargetManifest(), nil
 }
 
-func (a *AzureProvider) GetDefaultTargets() (*[]provider.ProviderTarget, error) {
+func (a *AzureProvider) GetPresetTargets() (*[]provider.ProviderTarget, error) {
 	return new([]provider.ProviderTarget), nil
 }
 
