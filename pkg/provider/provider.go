@@ -185,6 +185,11 @@ func (a *AzureProvider) GetWorkspaceInfo(workspaceReq *provider.WorkspaceRequest
 	return workspaceInfo, nil
 }
 
+func (a *AzureProvider) CheckRequirements() (*[]provider.RequirementStatus, error) {
+	results := []provider.RequirementStatus{}
+	return &results, nil 
+}
+
 func (a *AzureProvider) CreateProject(projectReq *provider.ProjectRequest) (*util.Empty, error) {
 	logWriter, cleanupFunc := a.getProjectLogWriter(projectReq.Project.WorkspaceId, projectReq.Project.Name)
 	defer cleanupFunc()
