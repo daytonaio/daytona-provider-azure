@@ -4,7 +4,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 )
 
-type WorkspaceMetadata struct {
+type TargetMetadata struct {
 	VirtualMachineId       string
 	VirtualMachineName     string
 	VirtualMachineSizeType string
@@ -12,9 +12,9 @@ type WorkspaceMetadata struct {
 	Created                string
 }
 
-// ToWorkspaceMetadata converts and maps values from an armcompute.VirtualMachine to a WorkspaceMetadata.
-func ToWorkspaceMetadata(vm *armcompute.VirtualMachine) WorkspaceMetadata {
-	metadata := WorkspaceMetadata{}
+// ToTargetMetadata converts and maps values from an armcompute.VirtualMachine to a TargetMetadata.
+func ToTargetMetadata(vm *armcompute.VirtualMachine) TargetMetadata {
+	metadata := TargetMetadata{}
 
 	if vm.ID != nil {
 		metadata.VirtualMachineId = *vm.ID
