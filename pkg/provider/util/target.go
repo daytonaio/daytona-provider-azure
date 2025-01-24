@@ -8,10 +8,10 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/compute/armcompute"
 	"github.com/daytonaio/daytona-provider-azure/pkg/types"
-	"github.com/daytonaio/daytona/pkg/workspace"
+	"github.com/daytonaio/daytona/pkg/models"
 )
 
-func CreateWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions, initScript string, logWriter io.Writer) error {
+func CreateTarget(target *models.Target, opts *types.TargetOptions, initScript string, logWriter io.Writer) error {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return err
@@ -22,7 +22,7 @@ func CreateWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions, 
 		return err
 	}
 
-	envVars := workspace.EnvVars
+	envVars := target.EnvVars
 	envVars["DAYTONA_AGENT_LOG_FILE_PATH"] = "/home/daytona/.daytona-agent.log"
 
 	customData := `#!/bin/bash
@@ -72,7 +72,7 @@ After=network.target
 
 [Service]
 User=daytona
-ExecStart=/usr/local/bin/daytona agent --host
+ExecStart=/usr/local/bin/daytona agent --target
 Restart=always
 `
 
@@ -89,10 +89,10 @@ systemctl start daytona-agent.service
 `
 
 	customDataEncoded := base64.StdEncoding.EncodeToString([]byte(customData))
-	return createVirtualMachine(workspace.Id, resourceGroupName, customDataEncoded, opts, cred, logWriter)
+	return createVirtualMachine(target.Id, resourceGroupName, customDataEncoded, opts, cred, logWriter)
 }
 
-func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func StartTarget(target *models.Target, opts *types.TargetOptions) error {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return err
@@ -103,7 +103,7 @@ func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) e
 		return err
 	}
 
-	vmName := getResourceName(workspace.Id)
+	vmName := getResourceName(target.Id)
 	resourceGroup := getResourceGroupName(opts)
 
 	pollerResp, err := computeClient.BeginStart(context.Background(), resourceGroup, vmName, nil)
@@ -119,7 +119,7 @@ func StartWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) e
 	return nil
 }
 
-func StopWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func StopTarget(target *models.Target, opts *types.TargetOptions) error {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return err
@@ -130,7 +130,7 @@ func StopWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) er
 		return err
 	}
 
-	vmName := getResourceName(workspace.Id)
+	vmName := getResourceName(target.Id)
 	resourceGroupName := getResourceGroupName(opts)
 
 	pollerResp, err := computeClient.BeginDeallocate(context.Background(), resourceGroupName, vmName, nil)
@@ -146,29 +146,29 @@ func StopWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) er
 	return nil
 }
 
-func DeleteWorkspace(workspace *workspace.Workspace, opts *types.TargetOptions) error {
+func DeleteTarget(target *models.Target, opts *types.TargetOptions) error {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return err
 	}
 
-	err = deleteVirtualMachine(workspace.Id, opts, cred)
+	err = deleteVirtualMachine(target.Id, opts, cred)
 	if err != nil {
 		return fmt.Errorf("cannot delete virtual machine: %+v", err)
 	}
 
-	err = deleteDisk(workspace.Id, opts, cred)
+	err = deleteDisk(target.Id, opts, cred)
 	if err != nil {
 		return fmt.Errorf("cannot delete instance disk: %+v", err)
 	}
 
-	err = deleteNetworkInterface(workspace.Id, opts, cred)
+	err = deleteNetworkInterface(target.Id, opts, cred)
 	if err != nil {
 		return fmt.Errorf("cannot delete network interface: %+v", err)
 	}
 
-	vNetName := getResourceName(fmt.Sprintf("vnet-%s", workspace.Id))
-	subnetName := getResourceName(fmt.Sprintf("subnet-%s", workspace.Id))
+	vNetName := getResourceName(fmt.Sprintf("vnet-%s", target.Id))
+	subnetName := getResourceName(fmt.Sprintf("subnet-%s", target.Id))
 
 	err = deleteSubnet(vNetName, subnetName, opts, cred)
 	if err != nil {

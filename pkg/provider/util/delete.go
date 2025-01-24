@@ -11,7 +11,7 @@ import (
 )
 
 // deleteVirtualMachine deletes a virtual machine instance in the specified resource group and workspace.
-func deleteVirtualMachine(workspaceId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
+func deleteVirtualMachine(targetId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
 	resourceGroupName := getResourceGroupName(opts)
 
 	computeClient, err := armcompute.NewVirtualMachinesClient(opts.SubscriptionId, cred, nil)
@@ -19,7 +19,7 @@ func deleteVirtualMachine(workspaceId string, opts *types.TargetOptions, cred az
 		return err
 	}
 
-	vmName := getResourceName(workspaceId)
+	vmName := getResourceName(targetId)
 
 	pollerResp, err := computeClient.BeginDelete(context.Background(), resourceGroupName, vmName, nil)
 	if err != nil {
@@ -31,7 +31,7 @@ func deleteVirtualMachine(workspaceId string, opts *types.TargetOptions, cred az
 }
 
 // deleteDisk deletes a disk associated with virtual machine instance in a workspace.
-func deleteDisk(workspaceId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
+func deleteDisk(targetId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
 	resourceGroupName := getResourceGroupName(opts)
 
 	diskClient, err := armcompute.NewDisksClient(opts.SubscriptionId, cred, nil)
@@ -39,7 +39,7 @@ func deleteDisk(workspaceId string, opts *types.TargetOptions, cred azcore.Token
 		return err
 	}
 
-	vmDiskName := getResourceName(fmt.Sprintf("%s-disk", workspaceId))
+	vmDiskName := getResourceName(fmt.Sprintf("%s-disk", targetId))
 
 	pollerResp, err := diskClient.BeginDelete(context.Background(), resourceGroupName, vmDiskName, nil)
 	if err != nil {
@@ -88,14 +88,14 @@ func deleteSubnet(vNetName, subnetName string, opts *types.TargetOptions, cred a
 // and resource group. It uses the given workspace ID, target options, and Azure Token
 // Credential to authenticate the request. The function returns an error if the deletion
 // process encounters any errors.
-func deleteNetworkInterface(workspaceId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
+func deleteNetworkInterface(targetId string, opts *types.TargetOptions, cred azcore.TokenCredential) error {
 	nicClient, err := armnetwork.NewInterfacesClient(opts.SubscriptionId, cred, nil)
 	if err != nil {
 		return err
 	}
 
 	resourceGroupName := getResourceGroupName(opts)
-	ifaceName := getResourceName(fmt.Sprintf("iface-%s", workspaceId))
+	ifaceName := getResourceName(fmt.Sprintf("iface-%s", targetId))
 
 	pollerResp, err := nicClient.BeginDelete(context.Background(), resourceGroupName, ifaceName, nil)
 	if err != nil {

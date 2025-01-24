@@ -15,7 +15,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/resources/armresources"
 	logwriters "github.com/daytonaio/daytona-provider-azure/internal/log"
 	"github.com/daytonaio/daytona-provider-azure/pkg/types"
-	"github.com/daytonaio/daytona/pkg/workspace"
+	"github.com/daytonaio/daytona/pkg/models"
 	"github.com/sethvargo/go-password/password"
 )
 
@@ -63,23 +63,23 @@ func initResourceGroup(opts *types.TargetOptions) (string, error) {
 }
 
 // createVirtualMachine creates a new virtual machine instance in the specified Azure workspace.
-func createVirtualMachine(workspaceId, resourceGroupName, customData string, opts *types.TargetOptions, cred azcore.TokenCredential, logWriter io.Writer) error {
+func createVirtualMachine(targetId, resourceGroupName, customData string, opts *types.TargetOptions, cred azcore.TokenCredential, logWriter io.Writer) error {
 	spinner := logwriters.ShowSpinner(logWriter, "Creating Azure virtual network", "Azure virtual network created")
-	vNet, err := createVirtualNetwork(workspaceId, resourceGroupName, opts, cred)
+	vNet, err := createVirtualNetwork(targetId, resourceGroupName, opts, cred)
 	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create virtual network: %+v", err)
 	}
 
 	spinner = logwriters.ShowSpinner(logWriter, "Creating Azure subnet", "Azure subnet created")
-	subnet, err := createSubnet(workspaceId, resourceGroupName, *vNet.Name, opts, cred)
+	subnet, err := createSubnet(targetId, resourceGroupName, *vNet.Name, opts, cred)
 	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create subnet: %+v", err)
 	}
 
 	spinner = logwriters.ShowSpinner(logWriter, "Creating Azure network interface", "Azure network interface created")
-	iface, err := createNetworkInterface(workspaceId, resourceGroupName, *subnet.ID, opts, cred)
+	iface, err := createNetworkInterface(targetId, resourceGroupName, *subnet.ID, opts, cred)
 	close(spinner)
 	if err != nil {
 		return fmt.Errorf("cannot create network interface:%+v", err)
@@ -90,8 +90,8 @@ func createVirtualMachine(workspaceId, resourceGroupName, customData string, opt
 		return err
 	}
 
-	vmName := getResourceName(workspaceId)
-	vmDiskName := getResourceName(fmt.Sprintf("%s-disk", workspaceId))
+	vmName := getResourceName(targetId)
+	vmDiskName := getResourceName(fmt.Sprintf("%s-disk", targetId))
 
 	publisher, offer, sku, version, err := extractURNParts(opts.ImageURN)
 	if err != nil {
@@ -164,13 +164,13 @@ func createVirtualMachine(workspaceId, resourceGroupName, customData string, opt
 // createVirtualNetwork creates a virtual network in the specified resource group.
 // If the virtual network already exists, it returns the existing virtual network.
 // Otherwise, it creates a new virtual network.
-func createVirtualNetwork(workspaceId, resourceGroupName string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.VirtualNetwork, error) {
+func createVirtualNetwork(targetId, resourceGroupName string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.VirtualNetwork, error) {
 	vnetClient, err := armnetwork.NewVirtualNetworksClient(opts.SubscriptionId, cred, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	vNetName := getResourceName(fmt.Sprintf("vnet-%s", workspaceId))
+	vNetName := getResourceName(fmt.Sprintf("vnet-%s", targetId))
 	vNetResp, err := vnetClient.Get(context.Background(), resourceGroupName, vNetName, nil)
 	if err == nil {
 		return &vNetResp.VirtualNetwork, nil
@@ -205,13 +205,13 @@ func createVirtualNetwork(workspaceId, resourceGroupName string, opts *types.Tar
 }
 
 // createSubnet creates a subnet for a virtual network.
-func createSubnet(workspaceId, resourceGroupName, vNetName string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.Subnet, error) {
+func createSubnet(targetId, resourceGroupName, vNetName string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.Subnet, error) {
 	subnetsClient, err := armnetwork.NewSubnetsClient(opts.SubscriptionId, cred, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	subnetName := getResourceName(fmt.Sprintf("subnet-%s", workspaceId))
+	subnetName := getResourceName(fmt.Sprintf("subnet-%s", targetId))
 	pollerResp, err := subnetsClient.BeginCreateOrUpdate(
 		context.Background(),
 		resourceGroupName,
@@ -236,13 +236,13 @@ func createSubnet(workspaceId, resourceGroupName, vNetName string, opts *types.T
 }
 
 // createNetworkInterface creates a network interface.
-func createNetworkInterface(workspaceId, resourceGroupName, subnetId string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.Interface, error) {
+func createNetworkInterface(targetId, resourceGroupName, subnetId string, opts *types.TargetOptions, cred azcore.TokenCredential) (*armnetwork.Interface, error) {
 	nicClient, err := armnetwork.NewInterfacesClient(opts.SubscriptionId, cred, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	ifaceName := getResourceName(fmt.Sprintf("iface-%s", workspaceId))
+	ifaceName := getResourceName(fmt.Sprintf("iface-%s", targetId))
 	pollerResponse, err := nicClient.BeginCreateOrUpdate(
 		context.Background(),
 		resourceGroupName,
@@ -276,7 +276,7 @@ func createNetworkInterface(workspaceId, resourceGroupName, subnetId string, opt
 	return &resp.Interface, err
 }
 
-func GetVirtualMachine(workspace *workspace.Workspace, opts *types.TargetOptions) (*armcompute.VirtualMachine, error) {
+func GetVirtualMachine(target *models.Target, opts *types.TargetOptions) (*armcompute.VirtualMachine, error) {
 	cred, err := getClientCredentials(opts)
 	if err != nil {
 		return nil, err
@@ -288,7 +288,7 @@ func GetVirtualMachine(workspace *workspace.Workspace, opts *types.TargetOptions
 	}
 
 	resourceGroupName := getResourceGroupName(opts)
-	vmName := getResourceName(workspace.Id)
+	vmName := getResourceName(target.Id)
 
 	resp, err := computeClient.Get(context.Background(), resourceGroupName, vmName, nil)
 	if err != nil {
