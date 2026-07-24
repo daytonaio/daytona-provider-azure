@@ -24,7 +24,7 @@ require (
 require (
 	code.gitea.io/sdk/gitea v0.17.1 // indirect
 	dario.cat/mergo v1.0.1 // indirect
-	filippo.io/edwards25519 v1.1.0 // indirect
+	filippo.io/edwards25519 v1.1.1 // indirect
 	gitee.com/openeuler/go-gitee v0.0.0-20220530104019-3af895bc380c // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.5.0 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
